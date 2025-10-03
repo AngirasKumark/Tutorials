@@ -17,11 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run PowerShell to export CSV
+      - name: Run PowerShell script
         shell: pwsh
         run: |
-          $data = @(
-              [PSCustomObject]@{ Id = 1; Name = "Alice"; Phone = "555-111" }
-              [PSCustomObject]@{ Id = 2; Name = "Bob"; Phone = "555-222" }
-          )
-          $data | Export-Csv -Path "output.csv" -NoTypeInformation
+          ./deploy.ps1
+
+      - name: Upload CSV as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contacts-csv
+          path: output/contacts.csv
