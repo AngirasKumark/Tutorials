@@ -8,6 +8,11 @@ on:
             required: true
             type: string
             default: ""
+        cid:
+            description: Authentication.
+            required: true
+            type: string
+            default: ""
 
 jobs:
   run-script:
@@ -19,7 +24,7 @@ jobs:
         run: |
           .\GetJobDocuments.ps1 `
             -RmsArrayJson '[ "https", "esus019064-t042.r1.kcura.com" ]' `
-            -CidToken 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjMwQUE4NUQxREQwMDk3Qjg0Q0E0REE4M0NENDc4RDkxQzVEM0VERjgiLCJ4NXQiOiJNS3FGMGQwQWw3aE1wTnFEelVlTmtjWFQ3ZmciLCJ0eXAiOiJKV1QifQ' `
+            -CidToken '${{ inputs['cid'] }}' `
             -$JobId '${{ inputs['job-id'] }}' `
             -OutputPath 'jobdocumentqueue_output.txt'
 
