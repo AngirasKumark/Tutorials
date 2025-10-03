@@ -15,4 +15,4 @@ jobs:
       - name: Run PowerShell script
         shell: pwsh   # or 'powershell' for Windows PowerShell 5.1
         run: |
-          ./scripts/deploy.ps1 -Environment "prod"
+          ./deploy.ps1 -Environment "prod"
