@@ -21,4 +21,4 @@ jobs:
       - name: Run PowerShell script
         shell: pwsh
         run: |
-          ./scripts/deploy.ps1 -Environment "${{ github.event.inputs.environment }}" -Version "${{ github.event.inputs.version }}"
+          ./deploy.ps1 -Environment "${{ github.event.inputs.environment }}" -Version "${{ github.event.inputs.version }}"
