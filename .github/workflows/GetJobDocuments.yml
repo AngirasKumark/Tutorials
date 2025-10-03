@@ -22,7 +22,7 @@ jobs:
       - name: Get PDF Job Document Queue
         shell: pwsh
         run: |
-          ./GetJobDocuments.ps1 `
+          .\GetJobDocuments.ps1 `
             -RmsArrayJson '[ "https", "esus019064-t042.r1.kcura.com" ]' `
             -CidToken '${{ inputs['cid'] }}' `
             -$JobId '${{ inputs['job-id'] }}' `
