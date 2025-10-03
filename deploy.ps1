@@ -1,6 +1,12 @@
-param(
-    [string]$Environment = "dev"
+# Sample data
+$contacts = @(
+    [PSCustomObject]@{ Id = 1; Name = "Alice"; Phone = "555-111" }
+    [PSCustomObject]@{ Id = 2; Name = "Bob";   Phone = "555-222" }
 )
 
-Write-Host "Starting deployment to $Environment environment..."
-# your deployment logic here
+# Export to CSV
+$path = "output/contacts.csv"
+New-Item -ItemType Directory -Force -Path (Split-Path $path) | Out-Null
+$contacts | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
+
+Write-Host "CSV generated at $path"
