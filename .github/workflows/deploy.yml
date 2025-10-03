@@ -1,6 +1,13 @@
 name: Deploy with PowerShell
 
 on:
+  workfllow_dispatch:
+    inputs:
+      environment:
+          discription:'Environemnt'
+          required:true,
+          type:environment
+          default:reg
   push:
     branches: [ main ]
 
