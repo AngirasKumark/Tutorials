@@ -34,7 +34,7 @@ jobs:
           .\scripts\GetJobDocumentsQueue.ps1 `
             -RmsArrayJson '[ "https", "esus019064-t042.r1.kcura.com" ]' `
             -CidToken '${{ inputs['cid'] }}' `
-            -$JobId '${{ inputs['job-id'] }}' `
+            -$JobId '99d90c89-3ab0-46c1-9404-afa65084b0f2' `
             -OutputPath 'jobdocumentqueue_output.txt'
 
       - name: Upload Job Documents Queue Output
