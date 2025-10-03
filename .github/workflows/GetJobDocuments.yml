@@ -12,6 +12,7 @@ on:
 jobs:
   run-script:
     name: Get PDF Job Documents Queue in Tenant's environment
+    runs-on: ubuntu-latest
     steps:
       - name: Get PDF Job Document Queue
         shell: pwsh
