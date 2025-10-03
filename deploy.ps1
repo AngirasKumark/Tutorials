@@ -5,8 +5,12 @@ $contacts = @(
 )
 
 # Export to CSV
+ $header = "`nJobs found: $contacts.Count`n"
+ Write-Host $header
+ $outputBuffer += $header
+ $outputBuffer += $contacts
 $path = "output/contacts.csv"
 New-Item -ItemType Directory -Force -Path (Split-Path $path) | Out-Null
-$contacts | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
+$outputBuffer | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
 #$contacts | Out-File -FilePath $path -Encoding UTF8
 Write-Host "CSV generated at $path"
