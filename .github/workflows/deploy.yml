@@ -12,13 +12,16 @@ on:
         required: false
 
 jobs:
-  deploy:
+  export:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run PowerShell script
+      - name: Run PowerShell to export CSV
         shell: pwsh
         run: |
-          ./deploy.ps1 -Environment "${{ github.event.inputs.environment }}" -Version "${{ github.event.inputs.version }}"
+          $data = @(
+              [PSCustomObject]@{ Id = 1; Name = "Alice"; Phone = "555-111" }
+              [PSCustomObject]@{ Id = 2; Name = "Bob"; Phone = "555-222" }
+          )
+          $data | Export-Csv -Path "output.csv" -NoTypeInformation
