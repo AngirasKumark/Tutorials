@@ -7,6 +7,6 @@ $contacts = @(
 # Export to CSV
 $path = "output/contacts.csv"
 New-Item -ItemType Directory -Force -Path (Split-Path $path) | Out-Null
-#$contacts | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
-$contacts | Out-File -FilePath $path -Encoding UTF8
+$contacts | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
+#$contacts | Out-File -FilePath $path -Encoding UTF8
 Write-Host "CSV generated at $path"
