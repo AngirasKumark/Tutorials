@@ -7,7 +7,7 @@ on:
             description: Job ID to filter by Documents.
             required: true
             type: string
-            default: ""
+            default: "99d90c89-3ab0-46c1-9404-afa65084b0f2"
         cid:
             description: Authentication.
             required: true
