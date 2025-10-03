@@ -1,0 +1,67 @@
+
+
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$RmsArrayJson,
+
+    [Parameter(Mandatory=$true)]
+    [string]$CidToken,
+
+    [Parameter(Mandatory=$true)]
+    [string]$JobId = "",
+
+    [Parameter(Mandatory=$false)]
+    [string]$OutputPath = ""
+)
+
+
+# Prepare the API request
+$rmsArray = $RmsArrayJson | ConvertFrom-Json
+$hostname = $rmsArray[1].ToLower()
+
+$url = "https://$hostname/Relativity.REST/api/relativity-pdf/v1/queue/documents?jobId=$JobId"
+
+Write-Host "Getting Documents job  queue from host: $hostname"
+Write-Host "Calling $url"
+
+try {
+    $response = Invoke-RestMethod -Method Get `
+        -Uri $url `
+        -Headers @{
+            "Content-Type" = "application/json"
+            "X-CSRF-Header" = ""
+            "Authorization" = "Bearer $CidToken"
+        } `
+
+    Write-Host "Job Queue API Response:"
+
+    if ($response.JobDocumentsQueue) {
+        $jobCount = $response.JobDocumentsQueue.Count
+        $header = "`nJobs found: $jobCount`n"
+        Write-Host $header
+        $outputBuffer += $header
+
+        foreach ($job in $response.JobDocumentsQueue) {
+            $formatted = $job | Format-List | Out-String
+            Write-Host $formatted
+            Write-Host "------------------------------------"
+
+            # Write to file
+            $outputBuffer += $formatted
+            $outputBuffer += "`n------------------------------------"
+        }
+    } else {
+        $msg = "No jobs found in the response."   
+        Write-Host $msg
+        $outputBuffer += $msg
+    }
+
+    if ($OutputPath) {
+        $outputBuffer | Out-File -FilePath $OutputPath -Encoding utf8
+    }
+
+} catch {
+    Write-Host "Error calling Job Queue API:"
+    Write-Host $_
+    exit 1
+} 
