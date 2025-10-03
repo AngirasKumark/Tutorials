@@ -40,16 +40,7 @@ try {
         $header = "`nJobs found: $jobCount`n"
         Write-Host $header
         $outputBuffer += $header
-
-        foreach ($job in $response.JobDocumentsQueue) {
-            $formatted = $job | Format-List | Out-String
-            Write-Host $formatted
-            Write-Host "------------------------------------"
-
-            # Write to file
-            $outputBuffer += $formatted
-            $outputBuffer += "`n------------------------------------"
-        }
+        $outputBuffer+ = $response.JobDocumentsQueue
     } else {
         $msg = "No jobs found in the response."   
         Write-Host $msg
@@ -59,7 +50,7 @@ try {
     if ($OutputPath) {
         #$outputBuffer | Out-File -FilePath $OutputPath -Encoding utf8
         #New-Item -ItemType Directory -Force -Path (Split-Path $OutputPath) | Out-Null
-        $response.JobDocumentsQueue | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
+        $outputBuffer | Export-Csv -Path $OutputPath -NoTypeInformation -Encoding UTF8
     }
 
 } catch {
