@@ -19,6 +19,12 @@ jobs:
     name: Get PDF Job Documents Queue in Tenant's environment
     runs-on: windows-latest
     steps:
+      - name: Checkout Only Scripts
+        uses: actions/checkout@v4
+      - name: Print Inputs
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Job ID: ${{ inputs['job-id'] }}"
       - name: Get PDF Job Document Queue
         shell: pwsh
         run: |
