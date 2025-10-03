@@ -57,7 +57,9 @@ try {
     }
 
     if ($OutputPath) {
-        $outputBuffer | Out-File -FilePath $OutputPath -Encoding utf8
+        #$outputBuffer | Out-File -FilePath $OutputPath -Encoding utf8
+        #New-Item -ItemType Directory -Force -Path (Split-Path $OutputPath) | Out-Null
+        $response.JobDocumentsQueue | Export-Csv -FilePath $OutputPath -NoTypeInformation -Encoding UTF8
     }
 
 } catch {
