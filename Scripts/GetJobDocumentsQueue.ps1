@@ -37,10 +37,10 @@ try {
 
     if ($response.JobDocumentsQueue) {
         $jobCount = $response.JobDocumentsQueue.Count
-        $header = "`nJobs found: $jobCount`n"
-        Write-Host $header
-        $outputBuffer += $header
-        $outputBuffer+ = $response.JobDocumentsQueue
+        #$header = "`nJobs found: $jobCount`n"
+        #Write-Host $header
+        #$outputBuffer += $header
+        $outputBuffer = $response.JobDocumentsQueue
     } else {
         $msg = "No jobs found in the response."   
         Write-Host $msg
