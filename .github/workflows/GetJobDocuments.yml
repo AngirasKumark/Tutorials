@@ -17,14 +17,14 @@ jobs:
       - name: Get PDF Job Document Queue
         shell: pwsh
         run: |
-          .\scripts\GetJobDocumentsQueue.ps1 `
-            -RmsArrayJson '${{ steps.get_tenant_instance_id.outputs.results }}' `
-            -CidToken '${{ steps.get_token.outputs.token }}' `
+          .\GetJobDocuments.ps1 `
+            -RmsArrayJson '[ "https", "esus019064-t042.r1.kcura.com" ]' `
+            -CidToken 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjMwQUE4NUQxREQwMDk3Qjg0Q0E0REE4M0NENDc4RDkxQzVEM0VERjgiLCJ4NXQiOiJNS3FGMGQwQWw3aE1wTnFEelVlTmtjWFQ3ZmciLCJ0eXAiOiJKV1QifQ' `
             -$JobId '${{ inputs['job-id'] }}' `
-            -OutputPath 'jobdocumentqueue_output.csv'
+            -OutputPath 'jobdocumentqueue_output.txt'
 
       - name: Upload Job Documents Queue Output
         uses: actions/upload-artifact@v4
         with:
           name: jobdocumentqueue_output
-          path: jobdocumentqueue_output.csv
+          path: jobdocumentqueue_output.txt
