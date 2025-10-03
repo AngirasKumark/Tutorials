@@ -1,25 +1,24 @@
 name: Deploy with PowerShell
 
 on:
-  workfllow_dispatch:
+  workflow_dispatch:
     inputs:
       environment:
-          discription:'Environemnt'
-          required:true,
-          type:environment
-          default:reg
-  push:
-    branches: [ main ]
+        description: "Environment to deploy (dev, staging, prod)"
+        required: true
+        default: "dev"
+      version:
+        description: "App version to deploy"
+        required: false
 
 jobs:
   deploy:
-    runs-on: windows-latest  # Windows runner includes PowerShell
+    runs-on: windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Run PowerShell script
-        shell: pwsh   # or 'powershell' for Windows PowerShell 5.1
+        shell: pwsh
         run: |
-          ./deploy.ps1 -Environment "prod"
+          ./scripts/deploy.ps1 -Environment "${{ github.event.inputs.environment }}" -Version "${{ github.event.inputs.version }}"
