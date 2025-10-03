@@ -1,0 +1,117 @@
+name: Get Job Documents Queue
+
+on:
+  workflow_dispatch:
+    inputs:
+        environment:
+            description: 'Environment'
+            required: true
+            type: environment
+            default: reg
+        job-id:
+            description: Job ID to filter by Documents.
+            required: true
+            type: string
+            default: ""
+        pod:
+            description: RelativityOne Pod-id
+            required: true
+            type: string
+        tenant-id:
+            description: RelativityOne Tenant-id
+            required: true
+            type: string
+
+jobs:
+  run-script:
+    name: Get PDF Job Documents Queue in Tenant's environment
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout Only Scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/
+      
+      - name: Print Inputs
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Job ID: ${{ inputs['job-id'] }}"
+          echo "Pod: ${{ inputs.pod }}"
+          echo "Tenant ID: ${{ inputs['tenant-id'] }}"
+      
+      # Login to Azure dev tenant to get partial CID credentials
+      - name: Login to Azure as Service Principal
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          environment: ${{ vars.AZURE_ENVIRONMENT }}
+          enable-AzPSSession: true
+          allow-no-subscriptions: true
+      
+      - uses: relativityone/get-keyvault-secrets-action@v2
+        id: keyvault_secrets
+        with:
+          key-vault: ${{ vars.AZURE_INFRASTRUCTURE_KV }}
+          secrets: Cid--ClientId, Cid--ClientSecret
+      
+      - name: Get CID token without instance id
+        id: get_token_no_env
+        shell: pwsh
+        run: |
+          $token = .\scripts\GetCidToken.ps1 `
+            -CidUrl "${{ vars.CID_URL }}" `
+            -ClientId "${{ steps.keyvault_secrets.outputs.Cid--ClientId }}" `
+            -ClientSecret "${{ steps.keyvault_secrets.outputs.Cid--ClientSecret }}"
+          echo "token=$token" >> $env:GITHUB_OUTPUT
+      
+      - name: Get Tenant Instance ID And Hostname
+        id: get_tenant_instance_id
+        shell: pwsh
+        run: |
+          $results = .\scripts\GetTenantInstanceId.ps1 `
+            -RmsUrl "${{ vars.RMS_URL }}" `
+            -Pod "${{ inputs.pod }}" `
+            -Tenant "${{ inputs.tenant-id }}" `
+            -Token "${{ steps.get_token_no_env.outputs.token }}"
+          if ([string]::IsNullOrWhiteSpace($results)) {
+            Write-Error "GetTenantInstanceId returned null or empty results. Exiting workflow."
+            exit 1
+          }
+          echo "results=$results" >> $env:GITHUB_OUTPUT             # [instance-id, hostname]
+
+      - name: Get CID token
+        id: get_token
+        shell: pwsh
+        run: |
+          Write-Host " Tenant results: ${{ steps.get_tenant_instance_id.outputs.results }}"
+          $rmsArray = '${{ steps.get_tenant_instance_id.outputs.results }}' | ConvertFrom-Json
+          $token = .\scripts\GetCidToken.ps1 `
+            -CidUrl "${{ vars.CID_URL }}" `
+            -ClientId "${{ steps.keyvault_secrets.outputs.Cid--ClientId }}" `
+            -ClientSecret "${{ steps.keyvault_secrets.outputs.Cid--ClientSecret }}" `
+            -Environment $rmsArray[0] `
+            -Scope "RelativityOneSharedService"
+          echo "token=$token" >> $env:GITHUB_OUTPUT
+      
+      - name: Get PDF Job Document Queue
+        shell: pwsh
+        run: |
+          .\scripts\GetJobDocumentsQueue.ps1 `
+            -RmsArrayJson '${{ steps.get_tenant_instance_id.outputs.results }}' `
+            -CidToken '${{ steps.get_token.outputs.token }}' `
+            -$JobId '${{ inputs['job-id'] }}' `
+            -OutputPath 'jobdocumentqueue_output.csv'
+
+      - name: Upload Job Documents Queue Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: jobdocumentqueue_output
+          path: jobdocumentqueue_output.csv
